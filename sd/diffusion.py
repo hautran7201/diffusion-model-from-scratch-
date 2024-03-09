@@ -4,6 +4,7 @@ from torch.nn import functional as F
 from attention import SelfAttention, CrossAttention
 
 
+
 class TimeEmbedding(nn.Module):
     def __init__(self, n_embedd):
         super().__init__()
@@ -225,6 +226,23 @@ class Unet(nn.Module):
             SwitchSequential(UNET_ResidualBlock(640, 320), UNET_AttentionBlock(8, 40)),
         ])
 
+    def forward(self, x, context, time):
+        print('start')
+        skip_conections = []
+        for layer in self.encoder:
+            x = layer(x, context, time)
+            skip_conections.append(x)
+        
+        x = self.bottleneck(x)
+
+        for layer in self.decoder:
+            skip = skip_conections.pop()
+            print("Shape của layer:", x)
+            print("Shape của skip:", skip)
+            x = torch.cat((x, skip), dim=1)
+            x = layer(x, context, time)
+        
+        return x
 
 class UNET_OutputLayer(nn.Module):
     def __init__(self, in_channel: int, out_channel: int):

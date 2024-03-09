@@ -60,7 +60,7 @@ class VAE_encoder(nn.Sequential):
             # (Batch, 512, hieght/8, width/8) -> (Batch, 8, height/8, width/8)
             nn.Conv2d(512, 8, kernel_size=3, padding=1),
 
-            # (Batch, 512, hieght/8, width/8) -> (Batch, 8, height/8, width/8)
+            # (Batch, 512,  /8, width/8) -> (Batch, 8, height/8, width/8)
             nn.Conv2d(8, 8, kernel_size=1, padding=0)
         )
 
