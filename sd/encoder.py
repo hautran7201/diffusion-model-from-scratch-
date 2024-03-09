@@ -85,7 +85,7 @@ class VAE_encoder(nn.Sequential):
         stdvar = variance.sqrt()
 
         # Z=N(0, 1) -> X=N(mean, stdvar)
-        x = mean + stdvar*x
+        x = mean + stdvar * noise 
 
         # Scale the output by constant
         x *= 0.18215

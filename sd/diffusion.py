@@ -1,8 +1,11 @@
+import sys
+sys.path.append("sd")
+
 import torch 
 from torch import nn 
 from torch.nn import functional as F
+from clip import CLIP
 from attention import SelfAttention, CrossAttention
-
 
 
 class TimeEmbedding(nn.Module):
@@ -82,7 +85,7 @@ class UNET_AttentionBlock(nn.Module):
         super().__init__()
         channel = n_head * n_embedd
 
-        self.groupnorm = nn.GroupNorm(32, channel, dim=-1)
+        self.groupnorm = nn.GroupNorm(32, channel, eps=1e-6)
         self.conv_input = nn.Conv2d(channel, channel, kernel_size=1, padding=0)
 
         self.layernorm_1 = nn.LayerNorm(channel)
@@ -164,7 +167,7 @@ class Unet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.encoder = nn.Module([
+        self.encoder = nn.ModuleList([
             # (Batch, 4, Height / 8, Width / 8) -> # (Batch, 320, Height / 8, Width / 8)
             SwitchSequential(nn.Conv2d(4, 320, kernel_size=3, padding=1)),
 
@@ -200,7 +203,7 @@ class Unet(nn.Module):
             UNET_ResidualBlock(1280, 1280)  
         )
 
-        self.decoder = nn.Module([
+        self.decoder = nn.ModuleList([
             SwitchSequential(UNET_ResidualBlock(2560, 1280)),
 
             SwitchSequential(UNET_ResidualBlock(2560, 1280)),
